@@ -67,6 +67,16 @@ header{background:linear-gradient(180deg,#30332f,#111412 72%);border-top:2px sol
 .flow-header h1{margin:0 0 8px;font-size:clamp(25px,4vw,40px)}
 .flow-header p{margin:0;max-width:76ch;color:#a8b5ac}
 .flow-board{border:1px solid #39463b;border-radius:10px;background:#111712}
+.flow-browse{display:flex;flex-wrap:wrap;gap:6px;padding:12px 14px 9px}
+.flow-browse button{padding:7px 11px;min-height:34px;font-size:12px}
+.flow-browse button[aria-pressed="true"]{color:#f2e9bb;border-color:#b3a96c;background:#373a24}
+.flow-quick{display:flex;flex-wrap:wrap;align-items:flex-end;gap:7px 12px;padding:4px 14px 10px}
+.flow-quick label{display:grid;gap:4px;min-width:0;max-width:100%;color:#b0bcb1;font-size:11px}
+.flow-quick input,.flow-quick select{min-height:34px;background:#18221b;color:#e1e8df;border:1px solid #435246;border-radius:4px;padding:5px 8px;color-scheme:dark}
+.flow-quick select{min-width:0;max-width:100%}
+.flow-filter-box{border-top:1px solid #29352c}
+.flow-filter-box>summary{padding:8px 14px;cursor:pointer;font-size:12px;color:#cbd7ca}
+.flow-filter-box>summary span{margin-left:5px;color:#d1c998}
 .flow-filters{display:flex;align-items:flex-end;flex-wrap:wrap;gap:10px 14px;padding:12px 14px}
 .flow-filters label:not(.flow-scope){display:grid;gap:4px}
 .flow-filters label{font-size:11px;color:#b0bcb1}
@@ -83,6 +93,7 @@ header{background:linear-gradient(180deg,#30332f,#111412 72%);border-top:2px sol
 .flow-viewport{background:#0d140f;border-top:1px solid #29352c;padding:9px 12px 13px;min-width:0;border-radius:0 0 10px 10px}
 .flow-card{border:1px solid #394a3e;border-left:3px solid #6c7d71;border-radius:6px;background:#151f18;min-width:0;margin:5px 0}
 .flow-card.tour,.flow-card.trader{border-left-color:#c3bd76}
+.flow-card.category{border-left-color:#7f9b84}
 .flow-card.ready,.flow-card.complete,.flow-card.inferred{border-left-color:#91b984}
 .flow-card.inferred{border-left-style:dashed}
 .flow-card.active{border-left-color:#82b4d6}
@@ -110,6 +121,11 @@ header{background:linear-gradient(180deg,#30332f,#111412 72%);border-top:2px sol
 .flow-content.compact>.flow-group>.flow-children{margin:0;padding:0;border:0}
 .flow-content.compact>.flow-group>.flow-children>.flow-card{margin-inline:-3px -1px}
 .flow-reference{font-size:11px;color:#a9b7ac;margin:6px 0}
+.flow-reference button{margin-left:6px;padding:2px 6px;font-size:11px}
+.flow-list-title{font-size:12px;color:#cbd7ca;margin:8px 0}
+.flow-tags{display:flex;flex-wrap:wrap;gap:3px 5px}
+.flow-tag{padding:1px 5px;border-radius:4px;background:#27382a;color:#cfdfcd;font-size:10px;line-height:1.4}
+.flow-more{display:block;margin:10px auto 2px}
 .flow-empty{padding:16px;color:#aebbb2}
 .flow-open-chain{margin-top:10px}
 @media(max-width:600px){.flow-filters label{flex-grow:1}.flow-count{flex-basis:100%;margin-left:0}.flow-header{padding-top:14px}.flow-viewport{padding:5px 5px 8px}.flow-content{padding-left:6px;padding-right:5px}.flow-children{margin-left:0;padding-left:5px}.flow-card summary{padding:7px 5px;gap:5px}.flow-detail-link{font-size:10px}}
@@ -136,18 +152,35 @@ header{background:linear-gradient(180deg,#30332f,#111412 72%);border-top:2px sol
 <div class="panel"><div class="panel-head"><div><h3 id="tableTitle">TRADER TASK INDEX</h3><p id="tableSubtitle">Narrative chapters and parallel tasks. Click an assignment to inspect the case file.</p></div><div class="panel-actions"><input class="search" type="search" placeholder="Search a task, clue, trader…" id="searchInput"><select id="sortSelect" title="Task order"><option value="narrative">Narrative reading order</option><option value="progression">Unlock / progression order</option><option value="level">Lowest PMC level first</option><option value="trader">Trader A–Z</option></select></div></div>
 <div class="table-scroll"><table><thead><tr><th style="width:85px">Story beat</th><th>Task / narrative thread</th><th>Trader</th><th>Loyalty</th><th>PMC Lv</th><th>State</th><th style="width:46px">Done</th></tr></thead><tbody id="taskRows"><tr><td colspan="7" class="empty">Loading tasks…</td></tr></tbody></table></div><div class="paginator"><span id="paginationText">—</span><div class="pbtn"><button id="prevPage">← Previous</button><button id="nextPage">Next →</button></div></div></div></div></section></section>
 <section class="hidden" id="flowPage" aria-labelledby="flowTitle">
- <div class="flow-header"><h1 id="flowTitle">Quest progression</h1><p>Click a card to expand or collapse its branch. Use the link on a card to open task details or a story mission.</p></div>
+ <div class="flow-header"><h1 id="flowTitle">Quest progression</h1><p>Explore a storyline, follow a task across traders, or browse by what you do in raid. Click a card to expand its branch.</p></div>
  <div class="flow-board">
-  <div class="flow-filters">
-   <label>Character mode <select id="flowMode"><option value="pve">PvE</option><option value="pvp">PvP</option><option value="seasonal">Seasonal</option></select></label>
-   <label>PMC level <input type="number" id="flowLevel" min="1" max="100"></label>
-   <label>Trader <select id="flowTrader"><option value="">All traders</option></select></label>
+  <nav class="flow-browse" id="flowBrowse" aria-label="Browse quest flowchart">
+   <button type="button" data-flow-browse="connections" aria-pressed="true">Connections</button>
+   <button type="button" data-flow-browse="storylines" aria-pressed="false">Storylines</button>
+   <button type="button" data-flow-browse="types" aria-pressed="false">Objective types</button>
+   <button type="button" data-flow-browse="traders" aria-pressed="false">Traders</button>
+   <button type="button" data-flow-browse="unlocks" aria-pressed="false">Unlock gates</button>
+  </nav>
+  <div class="flow-quick">
    <label class="flow-find">Find a task <input type="search" id="flowSearch" placeholder="Task name" autocomplete="off"></label>
+   <label id="flowGateGrouping" class="hidden">Group unlocks by <select id="flowGateBy"><option value="loyalty">Trader loyalty</option><option value="level">Minimum PMC level</option></select></label>
+   <label><span id="flowCategoryLabel">Connection</span><select id="flowCategory"><option value="">Any</option></select></label>
+   <label>Order <select id="flowSort"><option value="prerequisite">Prerequisites first</option><option value="level">Minimum PMC level</option><option value="loyalty">Trader loyalty</option><option value="name">Task name</option></select></label>
+  </div>
+  <details class="flow-filter-box" id="flowFilters"><summary>Filters <span id="flowFilterCount"></span></summary><div class="flow-filters">
+   <label>Character mode <select id="flowMode"><option value="pve">PvE</option><option value="pvp">PvP</option><option value="seasonal">Seasonal</option></select></label>
+   <label>Your PMC level <input type="number" id="flowLevel" min="1" max="100"></label>
+   <label>Trader <select id="flowTrader"><option value="">All traders</option></select></label>
+   <label>Storyline <select id="flowStory"><option value="">Any storyline</option></select></label>
+   <label>Objective <select id="flowActivity"><option value="">Any objective</option></select></label>
+   <label>Connections <select id="flowRelation"><option value="">Any connection</option></select></label>
+   <label>Loyalty gate <select id="flowLoyalty"><option value="">Any loyalty level</option></select></label>
+   <label>Minimum PMC gate <select id="flowMinLevel"><option value="">Any minimum level</option></select></label>
    <label class="flow-scope"><input type="checkbox" id="flowAllModes"> All modes</label>
    <label class="flow-scope"><input type="checkbox" id="flowHistorical"> Historical tasks</label>
-  </div>
-  <div class="flow-tools"><button type="button" id="flowClear">Overview</button><button type="button" id="flowCollapse">Collapse all</button><button type="button" id="flowCurrent">My current task</button><span class="flow-count" id="flowCount" aria-live="polite"></span></div>
-  <p class="flow-note">Connections follow recorded requirements. The archive gives no exact sequence for loyalty batches.</p>
+  </div></details>
+  <div class="flow-tools"><button type="button" id="flowClear">Reset filters</button><button type="button" id="flowCollapse">Collapse all</button><button type="button" id="flowCurrent">My current task</button><span class="flow-count" id="flowCount" aria-live="polite"></span></div>
+  <p class="flow-note" id="flowNote"></p>
   <div class="flow-viewport" id="flowCanvas" role="region" aria-label="Quest branches"></div>
  </div>
 </section>
@@ -753,8 +786,103 @@ function bindCampaignControls(){for(const [id,handler] of [['cOverview',()=>{cam
 
 // Story milestones and trader access provide context for recorded task links.
 const FLOW_TRADERS=['Therapist','Ragman','Fence','Skier','Mechanic','Prapor','Peacekeeper','Jaeger','Ref','BTR Driver','Lightkeeper'];
+const FLOW_ACTIVITY=[
+ ['explore','Exploration & recon',/^(?:(?:locate|search)\b(?!.*\band (?:obtain|collect|claim|mark|stash|install)\b)|find (?:out|a way|jaeger.s camp)\b|scout\b|investigate\b|visit\b|check\b|access\b|go to\b|gain access\b|return to (?!the btr driver)|unravel\b|determine\b)/i],
+ ['combat','Combat & clearance',/^(?:eliminate|kill|clear|secure the area|shoot (?:any target|the target|targets))\b/i],
+ ['collection','Collection & hand-in',/^(?:obtain|hand\s?over|bring|claim a trophy|take a sample|find (?!out\b|a way\b|jaeger.s camp\b|and mark\b))\b|^(?:locate|search)\b.*\b(?:obtain|collect)\b/i],
+ ['fieldwork','Marking, stashing & installation',/^(?:stash|mark|install|place|plant|hide|set up|launch|shoot a .*flare|(?:locate|find) and (?:mark|install|stash))\b/i],
+ ['travel','Survival, extraction & transit',/^(?:survive|extract|use (?:the )?(?:paid vehicle extraction|transit)|gain the .*status effect)\b/i],
+ ['equipment','Gunsmith & technical work',/^(?:modify|build|fix|repair|reflash)\b/i],
+ ['standing','Skills, standing & trade',/^(?:reach|sell)\b/i],
+ ['arena','Arena & competition',/^(?:win|play)\b/i],
+ ['coordination','Contact & task handoffs',/^(?:talk|speak|return to the btr driver|complete the task)\b/i],
+ ['other','Other objectives'],
+];
+const FLOW_CONNECTIONS=[
+ ['cross','Multiple traders'],
+ ['linked','Direct quest links'],
+ ['multiple','Multiple required tasks'],
+ ['choice','Alternatives & recovery'],
+ ['standalone','No recorded quest link'],
+];
+const FLOW_FILTER_IDS=['flowTrader','flowStory','flowActivity','flowRelation','flowLoyalty','flowMinLevel'];
+const FLOW_PAGE_SIZE=36;
+const FLOW_TRADER_MENTIONS=new Map(TRADERS.map(name=>[name,new RegExp(`\\b(?:to|with) (?:the )?${name}\\b`,'i')]));
+const FLOW_NOTES={
+ connections:'Explore direct quest links, multiple traders, and alternate routes.',
+ storylines:'Campaign missions follow their chapter order. Side-task themes and series help you browse related quests.',
+ types:'Objective tags come from recorded objective text. A task can appear under several types.',
+ traders:'Browse by quest giver. Expanding a task shows connections to other traders.',
+ unlocks:'Recorded gates only. The archive gives no exact sequence for loyalty batches.',
+};
 const flowOpenCards=new Set();
-let flowFocus='',flowModel=null;
+let flowFocus='',flowModel=null,flowBrowse='connections',flowLimit=FLOW_PAGE_SIZE;
+
+function flowActivityTags(q){
+ const wording=q.objectiveText.filter(text=>typeof text==='string');
+ const objectives=wording.filter(text=>!/^\s*\(optional\)/i.test(text));
+ const lines=(objectives.length?objectives:wording).map(text=>text.replace(/^\s*\(optional\)\s*/i,'').trim());
+ const tags=FLOW_ACTIVITY.filter(([, , pattern])=>pattern&&lines.some(text=>pattern.test(text))).map(([id])=>id);
+ return tags.length?tags:['other'];
+}
+
+function flowStoryGroups(tasks){
+ const themes=CHAPTERS.map(c=>({id:'theme:'+c.id,label:c.id==='other'?'Other side tasks':c.title,kind:'theme',tasks:tasks.filter(q=>q.chapter===c.id)}));
+ const series=new Map();
+ const base=q=>q.name.replace(/\s*\[[^\]]+\]\s*$/,'').trim();
+ for(const q of tasks){
+  const match=base(q).match(/^(.+?)\s*(?:-|–)\s*Part\s+(\d+)\b/i);
+  if(!match)continue;
+  const id='series:'+clean(match[1]).replace(/ /g,'-');
+  if(!series.has(id))series.set(id,{id,label:match[1],kind:'series',tasks:[]});
+  series.get(id).tasks.push(q);
+ }
+ const named=[];
+ for(const group of series.values()){
+  const first=tasks.filter(q=>clean(base(q))===clean(group.label));
+  group.tasks.unshift(...first);
+  if(new Set(group.tasks.map(q=>clean(base(q)))).size<2)continue;
+  const members=new Set(group.tasks.map(q=>q.id));
+  const blocked=new Set(group.tasks.flatMap(q=>q.failedBy));
+  group.tasks.push(...tasks.filter(q=>!members.has(q.id)&&(blocked.has(q.id)||q.failedBy.some(id=>members.has(id)))));
+  named.push(group);
+ }
+ return named.sort((a,b)=>a.label.localeCompare(b.label)).concat(themes.filter(g=>g.tasks.length));
+}
+
+function addFlowConnections(model){
+ const {tasks,incoming,outgoing}=model;
+ const conflicts=new Map(tasks.map(q=>[q.id,new Set()]));
+ for(const q of tasks)for(const id of q.failedBy){
+  if(id===q.id)continue;
+  conflicts.get(q.id).add(id);
+  conflicts.get(id)?.add(q.id);
+ }
+ const access=new Map();
+ for(const trader of TRADERS)for(const {task} of flowTraderTaskAccess(trader)){
+  if(!access.has(task))access.set(task,[]);
+  access.get(task).push(trader);
+ }
+ model.conflicts=conflicts;
+ model.access=access;
+ model.connections=new Map(tasks.map(q=>{
+  const before=incoming.get(q.id),after=outgoing.get(q.id);
+  const related=new Set([...before.map(e=>e.from),...after.map(e=>e.to),...conflicts.get(q.id)]);
+  const others=new Set([...related].map(id=>byId.get(id)?.trader).filter(Boolean));
+  for(const trader of access.get(q.id)||[])others.add(trader);
+  for(const r of q.traderRequirements)others.add(r.trader);
+  const contacts=q.objectiveText.filter(text=>/^(?:\(optional\)\s*)?(?:hand over|bring|deliver|sell|talk|speak|return|report)\b/i.test(text));
+  for(const [trader,mention] of FLOW_TRADER_MENTIONS){
+   if(contacts.some(text=>mention.test(text)))others.add(trader);
+  }
+  others.delete(q.trader);
+  const tags=[related.size?'linked':'standalone'];
+  if(others.size)tags.push('cross');
+  if(new Set(before.filter(e=>!e.alternative).map(e=>e.from)).size>1)tags.push('multiple');
+  if(conflicts.get(q.id).size||[...before,...after].some(e=>e.alternative||e.status.includes('failed')))tags.push('choice');
+  return [q.id,{tags,traders:[...others]}];
+ }));
+}
 
 function setQuestLevel(value){
  settings.pmc=Math.min(100,Math.max(1,+value||1));
@@ -767,7 +895,7 @@ function changeQuestMode(mode){
  settings.mode=mode;
  flowFocus='';
  flowOpenCards.clear();
- if($('flowTrader').value)flowOpenCards.add('root/trader:'+$('flowTrader').value);
+ flowLimit=FLOW_PAGE_SIZE;
  loadProgress();
  $('modeButtons').querySelectorAll('[data-mode]').forEach(b=>b.classList.toggle('selected',mode===b.dataset.mode));
  $('flowMode').value=mode;
@@ -814,8 +942,8 @@ function flowTaskGate(q,context=flowAccessContext()){
 
 function buildQuestFlow(){
  const allModes=$('flowAllModes').checked;
- const tasks=DB.filter(q=>(allModes||inMode(q))&&($('flowHistorical').checked||!q.removedFromGame));
- const byTask=new Map(tasks.map(q=>[q.id,q]));
+ const byTask=new Map(DB.filter(q=>(allModes||inMode(q))&&($('flowHistorical').checked||!q.removedFromGame)).map(q=>[q.id,q]));
+ const tasks=[...byTask.values()];
  const incoming=new Map(),outgoing=new Map(tasks.map(q=>[q.id,[]]));
  for(const q of tasks){
   const edges=new Map();
@@ -832,7 +960,11 @@ function buildQuestFlow(){
   incoming.set(q.id,[...edges.values()]);
   for(const edge of edges.values())outgoing.get(edge.from)?.push(edge);
  }
- return {tasks,byTask,incoming,outgoing,context:flowAccessContext()};
+ const storylines=flowStoryGroups(tasks),stories=new Map(tasks.map(q=>[q.id,new Set()]));
+ for(const group of storylines)for(const q of group.tasks)stories.get(q.id).add(group.id);
+ const model={tasks,byTask,incoming,outgoing,storylines,stories,activities:new Map(tasks.map(q=>[q.id,flowActivityTags(q)])),families:new Map(),taskCards:new Map(),context:flowAccessContext()};
+ addFlowConnections(model);
+ return model;
 }
 
 function flowTraderTaskAccess(trader){
@@ -854,30 +986,53 @@ function flowRelationLabel(edge,direction){
  return (edge.alternative?'Alternative route':condition)+scope;
 }
 
-function flowCard(id,parent='',relation=''){
+function flowCard(id,parent='',relation='',label=''){
  const key=parent?parent+'/'+id:'root/'+id;
  if(parent.split('/').includes(id)){
   return `<p class="flow-reference">${esc(flowNodeName(id))} is already in this branch${relation?' · '+esc(relation):''}.</p>`;
  }
- const q=byId.get(id),metadata=[],context=flowModel.context;
- let type='tour',link='',name=flowNodeName(id);
+ const q=byId.get(id),family=flowModel.families.get(id),metadata=[],context=flowModel.context;
+ let type='tour',link='',name=label||flowNodeName(id),tags='';
  if(q){
+  const existing=flowModel.taskCards.get(id);
+  if(existing&&existing!==key){
+   return `<p class="flow-reference">${esc(name)}${relation?' · '+esc(relation):''} <button type="button" data-flow-reveal="${esc(id)}">Show task</button></p>`;
+  }
+  flowModel.taskCards.set(id,key);
+ }
+ if(family){
+  type='category';
+  metadata.push(family.tasks[0].trader,family.tasks.length+' variants');
+ }else if(q){
   const gate=flowTaskGate(q,context);
   type=inferredProgress.has(id)&&inMode(q)&&!q.removedFromGame?'inferred':gate.type;
   metadata.push(q.trader);
+  if(q.faction)metadata.push(q.faction);
+  if(q.modes.length===1)metadata.push(flowModeName(q.modes[0]));
   const minLevel=taskMinLevel(q,inMode(q)?settings.mode:q.modes[0]);
   if(llNum(q))metadata.push('LL '+llNum(q));
   if(minLevel)metadata.push('PMC '+minLevel);
   const labels={inferred:'Inferred complete',complete:'Completed',ready:recordedState(id)==='unlocked'?'Unlocked':'Recorded gates met',active:'In progress',failed:'Failed',blocked:'Branch locked',locked:'Locked',other:'Other mode',historical:'Historical'};
   metadata.push(labels[type]);
-  if(!flowModel.outgoing.get(id)?.length&&!TRADERS.some(trader=>flowTraderTaskAccess(trader).some(r=>r.task===id)))metadata.push('No recorded follow-up');
+  if(!flowModel.outgoing.get(id)?.length&&!flowModel.access.has(id))metadata.push('No recorded follow-up');
+  const activities=FLOW_ACTIVITY.filter(([key])=>flowModel.activities.get(id).includes(key)).map(([,name])=>name);
+  if(flowModel.connections.get(id).tags.includes('cross'))activities.push('Multiple traders');
+  tags=`<span class="flow-tags">${activities.map(tag=>`<span class="flow-tag">${esc(tag)}</span>`).join('')}</span>`;
   link=`<a href="#drawer" class="flow-detail-link" data-flow-task-link="${esc(id)}" aria-label="Task details for ${esc(name)}">Task details</a>`;
  }else if(id.startsWith('trader:')){
   type='trader';
-  const total=flowModel.tasks.filter(q=>q.trader===name).length;
+  const total=flowTasksForTrader(name).length;
   const access=flowTraderStatus(name,context);
-  metadata.push(total+' '+(total===1?'task':'tasks'));
+  metadata.push(flowTaskCount(total));
   if(access.why)metadata.push(access.open?'Access unlocked':'Access locked');
+ }else if(id.startsWith('campaign:')){
+  const ch=campaignById.get(id.slice(9)),stats=cChapterStats(ch);
+  metadata.push(`${stats.doneStages}/${stats.stages} missions complete`);
+  link=flowStoryLink(ch.stages[0].id,'Open chapter',name);
+ }else if(id.startsWith('story:')){
+  const {ch,s}=cFindStage(id.slice(6)),stats=cStageStats(s);
+  metadata.push(ch.title,stats.finished?'Completed':stats.started?'In progress':'Mission',cBranchLabel(s));
+  link=flowStoryLink(s.id,'Open story mission',name);
  }else if(id==='flow-tour'){
   metadata.push('1.0 story · Trader access');
   link='<a href="#campaignPage" class="flow-detail-link" data-flow-story-link="tour-1">Open Tour</a>';
@@ -887,20 +1042,29 @@ function flowCard(id,parent='',relation=''){
   const state=context.finishedTour.has(id)?'Reached':step<=context.tourReached?'Inferred reached':step===context.tourReached+1?'Next milestone':'Upcoming';
   metadata.push('Tour',state);
   if(trader)metadata.push('Unlocks '+trader);
-  link=`<a href="#campaignPage" class="flow-detail-link" data-flow-story-link="${esc(id)}" aria-label="Open story mission ${esc(name)}">Open story mission</a>`;
+  link=flowStoryLink(id,'Open story mission',name);
  }
  if(relation)metadata.unshift(relation);
  const open=flowOpenCards.has(key);
  return `<details class="flow-card ${type}${flowFocus===id?' current':''}" data-flow-id="${esc(id)}" data-flow-key="${esc(key)}"${open?' open':''}>
-  <summary><span class="flow-chevron" aria-hidden="true">›</span><span class="flow-card-title"><b>${esc(name)}</b><small>${metadata.filter(Boolean).map(esc).join(' · ')}</small></span>${link}</summary>
+  <summary><span class="flow-chevron" aria-hidden="true">›</span><span class="flow-card-title"><b>${esc(name)}</b><small>${metadata.filter(Boolean).map(esc).join(' · ')}</small>${tags}</span>${link}</summary>
   <div class="flow-content${key.split('/').length>8?' compact':''}">${open?flowCardBody(id,key):''}</div>
  </details>`;
 }
 
 function flowNodeName(id){
- if(id==='flow-tour')return 'Tour';
+ if(flowModel.families.has(id))return flowModel.families.get(id).label;
+ if(id.startsWith('campaign:'))return campaignById.get(id.slice(9)).title;
+ if(id.startsWith('story:'))return cFindStage(id.slice(6)).s.title;
+ if(id==='flow-tour')return 'Tour trader unlocks';
  if(id.startsWith('trader:'))return id.slice(7);
  return byId.get(id)?.name||cFindStage(id)?.s.title||'Unlisted task';
+}
+
+function flowTaskCount(count){return count+' '+(count===1?'task':'tasks')}
+function flowModeName(mode){return mode==='seasonal'?'Seasonal':mode==='pve'?'PvE':'PvP'}
+function flowStoryLink(id,label,name){
+ return `<a href="#campaignPage" class="flow-detail-link" data-flow-story-link="${esc(id)}" aria-label="${esc(label+' '+name)}">${esc(label)}</a>`;
 }
 
 function flowGroup(label,cards){
@@ -920,8 +1084,11 @@ function flowRelatedCards(edges,key,direction){
  });
 }
 
-function flowTraderBranches(trader,key){
- const candidates=flowModel.tasks.filter(q=>q.trader===trader).sort((a,b)=>a.name.localeCompare(b.name));
+function flowTasksForTrader(trader){
+ return flowModel.tasks.filter(q=>q.trader===trader);
+}
+
+function flowQuestRoots(candidates){
  const ids=new Set(candidates.map(q=>q.id));
  const starts=candidates.filter(q=>!flowModel.incoming.get(q.id).some(edge=>ids.has(edge.from)));
  const roots=[];
@@ -937,7 +1104,13 @@ function flowTraderBranches(trader,key){
   }
  };
  for(const q of [...starts,...candidates])if(!reached.has(q.id))visit(q);
- const standalone=roots.filter(q=>!flowModel.incoming.get(q.id).length&&!flowModel.outgoing.get(q.id).length);
+ return roots;
+}
+
+function flowTraderBranches(trader,key){
+ const tasks=flowTasksForTrader(trader).sort((a,b)=>a.name.localeCompare(b.name));
+ const roots=flowQuestRoots(tasks);
+ const standalone=roots.filter(q=>flowModel.connections.get(q.id).tags.includes('standalone'));
  const chains=roots.filter(q=>!standalone.includes(q));
  const stage=TOUR_TRADER_STAGES[trader];
  const sources=stage?[flowCard(stage,key+'/access')]:flowTraderTaskAccess(trader).filter(r=>flowModel.byTask.has(r.task)).map(r=>flowCard(r.task,key+'/access','Must be '+flowRequirementsLabel(requirementStates(r))));
@@ -947,6 +1120,19 @@ function flowTraderBranches(trader,key){
 }
 
 function flowCardBody(id,key){
+ const family=flowModel.families.get(id);
+ if(family){
+  return flowGroup('Task variants',family.tasks.map(q=>flowCard(q.id,key,'',flowVariantLabel(q,family.tasks))));
+ }
+ if(id.startsWith('campaign:')){
+  const ch=campaignById.get(id.slice(9));
+  return `<p>${esc(ch.unlock)}</p>`+flowGroup('Missions in chapter order',ch.stages.map(s=>flowCard('story:'+s.id,key)));
+ }
+ if(id.startsWith('story:')){
+  const {s}=cFindStage(id.slice(6)),stats=cStageStats(s);
+  return `<p>${esc(s.map||'Multiple locations')} · ${stats.done}/${stats.total} required objectives complete</p>`+
+   `<p>${esc(s.why)}</p>`;
+ }
  if(id==='flow-tour')return flowCard('tour-1',key);
  if(id.startsWith('trader:'))return flowTraderBranches(id.slice(7),key);
  if(id.startsWith('tour-')){
@@ -959,7 +1145,7 @@ function flowCardBody(id,key){
  }
  const q=flowModel.byTask.get(id),gate=flowTaskGate(q,flowModel.context);
  const incoming=flowModel.incoming.get(id),outgoing=flowModel.outgoing.get(id);
- const access=TRADERS.flatMap(trader=>flowTraderTaskAccess(trader).filter(r=>r.task===id&&flowModel.tasks.some(task=>task.trader===trader)).map(r=>
+ const access=(flowModel.access.get(id)||[]).filter(trader=>flowModel.tasks.some(task=>task.trader===trader)).flatMap(trader=>flowTraderTaskAccess(trader).filter(r=>r.task===id).map(r=>
   flowCard('trader:'+trader,key+'/unlock','After this task is '+flowRequirementsLabel(requirementStates(r)))));
  const unlock=TOUR_TRADER_STAGES[q.trader];
  const hasTraderPrereq=incoming.some(edge=>!edge.alternative&&byId.get(edge.from)?.trader===q.trader);
@@ -970,16 +1156,168 @@ function flowCardBody(id,key){
  if(llNum(q)&&!q.traderRequirements.some(r=>r.trader===q.trader&&r.kind==='loyalty'))extraGates.push(`${q.trader} LL ${llNum(q)}`);
  const minLevel=taskMinLevel(q,inMode(q)?settings.mode:q.modes[0]);
  if(minLevel)extraGates.push('PMC level '+minLevel);
- const excluded=q.failedBy.map(prior=>byId.get(prior)?.name).filter(Boolean);
- return (extraGates.length?`<p>${extraGates.map(esc).join(' · ')}</p>`:'')+
+ const relatedTraders=flowModel.connections.get(id).traders;
+ const choices=[...flowModel.conflicts.get(id)].map(other=>{
+  const note=q.failedBy.includes(other)?'Completing this alternative blocks '+q.name:'Completing '+q.name+' blocks this alternative';
+  return flowModel.byTask.has(other)?flowCard(other,key+'/choices',note):`<p class="flow-reference">${esc(flowNodeName(other))} · ${esc(note)}</p>`;
+ });
+ const remainingGates=extraGates.filter(rule=>!gate.why.includes(rule));
+ return (remainingGates.length?`<p>${remainingGates.map(esc).join(' · ')}</p>`:'')+
+  (relatedTraders.length?`<p>Also involves ${relatedTraders.map(esc).join(', ')}</p>`:'')+
   (gate.why.length?`<p>${gate.why.map(esc).join(' · ')}</p>`:'')+
-  (excluded.length?`<p>Mutually exclusive with ${excluded.map(esc).join(', ')}</p>`:'')+
+  flowGroup('Conflicting choices',choices)+
   flowGroup('Required tasks',flowRelatedCards(incoming.filter(e=>!e.alternative),key+'/required','from'))+
   flowGroup('Alternative prerequisites · any one in progress or complete',flowRelatedCards(incoming.filter(e=>e.alternative),key+'/alternative','from'))+
   flowGroup('Trader access',accessContext)+
   flowGroup('Follow-up tasks',flowRelatedCards(outgoing,key+'/next','to'))+
   flowGroup('Grants trader access',access)+
-  (!incoming.length&&!outgoing.length&&!access.length?'<p>No direct task links recorded.</p>':'');
+  (flowModel.connections.get(id).tags.includes('standalone')&&!access.length?'<p>No direct task links recorded.</p>':'');
+}
+
+function flowLoyaltyKey(q){
+ const level=llNum(q);
+ if(level>0)return String(level);
+ return q.traderTab==='essential'?'essential':'none';
+}
+
+function flowLoyaltyGroups(){
+ const levels=[...new Set(flowModel.tasks.map(flowLoyaltyKey).filter(key=>/^\d+$/.test(key)))].sort((a,b)=>Number(a)-Number(b));
+ return [['essential','Essential tasks'],...levels.map(level=>[level,'Loyalty level '+level]),['none','No own-trader loyalty level']];
+}
+
+function flowMinLevel(q){return taskMinLevel(q,inMode(q)?settings.mode:q.modes[0])||0}
+
+function flowLevelGroups(){
+ const levels=[...new Set(flowModel.tasks.map(flowMinLevel))].sort((a,b)=>(a||Infinity)-(b||Infinity));
+ return levels.map(level=>[String(level),level?'Minimum PMC level '+level:'No recorded PMC level']);
+}
+
+function flowStoryCards(term){
+ const campaign=CAMPAIGN_DATA.filter(ch=>!term||clean(ch.title).includes(term));
+ const missions=term?CAMPAIGN_DATA.filter(ch=>!campaign.includes(ch)).flatMap(ch=>
+  ch.stages.filter(s=>clean(s.title).includes(term)).map(s=>flowCard('story:'+s.id))):[];
+ const cards=flowGroup('Main campaign',campaign.filter(ch=>ch.isMain).map(ch=>flowCard('campaign:'+ch.id)))+
+  flowGroup('Parallel investigations',campaign.filter(ch=>!ch.isMain).map(ch=>flowCard('campaign:'+ch.id)))+
+  flowGroup('Matching story missions',missions);
+ return {cards,total:campaign.length+missions.length};
+}
+
+function fillFlowSelect(id,options){
+ const select=$(id),previous=select.value;
+ select.length=1;
+ for(const [value,label] of options)select.add(new Option(label,value));
+ select.value=options.some(([value])=>value===previous)?previous:'';
+}
+
+function flowBrowseField(){
+ return {connections:'flowRelation',storylines:'flowStory',types:'flowActivity',traders:'flowTrader',
+  unlocks:$('flowGateBy').value==='level'?'flowMinLevel':'flowLoyalty'}[flowBrowse];
+}
+
+function syncFlowCategory(){
+ const field=$(flowBrowseField()),picker=$('flowCategory');
+ $('flowCategoryLabel').textContent=field.closest('label').firstChild.textContent.trim();
+ picker.replaceChildren(...Array.from(field.options,option=>new Option(option.textContent,option.value)));
+ picker.value=field.value;
+ for(const id of FLOW_FILTER_IDS)$(id).closest('label').classList.toggle('hidden',id===field.id);
+}
+
+function clearFlowTaskFilters(){
+ $('flowSearch').value='';
+ for(const id of FLOW_FILTER_IDS)$(id).value='';
+ flowLimit=FLOW_PAGE_SIZE;
+}
+
+function flowPrerequisiteRanks(){
+ const {tasks,incoming,byTask}=flowModel;
+ const rank=new Map(tasks.map(q=>[q.id,0])),degree=new Map(),queue=[];
+ const after=new Map(tasks.map(q=>[q.id,[]]));
+ for(const q of tasks){
+  const before=new Set(incoming.get(q.id).filter(e=>!e.alternative&&e.status.length===1&&
+   e.status[0]==='complete'&&byTask.has(e.from)).map(e=>e.from));
+  for(const id of before)after.get(id).push(q.id);
+  degree.set(q.id,before.size);
+  if(!before.size)queue.push(q.id);
+ }
+ for(const id of queue)for(const next of after.get(id)){
+  rank.set(next,Math.max(rank.get(next),rank.get(id)+1));
+  degree.set(next,degree.get(next)-1);
+  if(!degree.get(next))queue.push(next);
+ }
+ return rank;
+}
+
+function sortFlowTasks(tasks){
+ const method=$('flowSort').value;
+ const rank=method==='prerequisite'?flowPrerequisiteRanks():null;
+ const name=(a,b)=>a.name.localeCompare(b.name,undefined,{numeric:true})||a.trader.localeCompare(b.trader)||a.id.localeCompare(b.id);
+ const level=(a,b)=>(flowMinLevel(a)||Infinity)-(flowMinLevel(b)||Infinity);
+ const loyalty=(a,b)=>(llNum(a)||Infinity)-(llNum(b)||Infinity);
+ tasks.sort((a,b)=>(rank?rank.get(a.id)-rank.get(b.id)||level(a,b)||loyalty(a,b):
+  method==='level'?level(a,b):method==='loyalty'?loyalty(a,b):0)||name(a,b));
+}
+
+function flowDisplayTitle(q){return q.name.replace(/\s*\[(?:PvE|PvP) zone\]\s*$/i,'').trim()}
+
+function groupFlowResults(tasks){
+ const groups=new Map();
+ for(const q of tasks){
+  const label=flowDisplayTitle(q),key=JSON.stringify([q.trader,label.toLowerCase()]);
+  if(!groups.has(key))groups.set(key,{label,tasks:[]});
+  groups.get(key).tasks.push(q);
+ }
+ return [...groups.values()];
+}
+
+function flowVariantLabel(q,variants){
+ if(q.faction)return q.faction;
+ const modeList=task=>task.modes.map(flowModeName).join(', ');
+ if(variants.some(other=>modeList(other)!==modeList(q)))return modeList(q);
+ const route=task=>taskRequirements(task,inMode(task)?settings.mode:task.modes[0]).map(r=>byId.get(r.task)?.name).filter(Boolean).join(', ');
+ const via=route(q);
+ if(via&&variants.some(other=>route(other)!==via))return 'Route via '+via;
+ const objective=q.objectiveText.find(text=>!/^\(optional\)/i.test(text));
+ if(objective&&variants.some(other=>!other.objectiveText.includes(objective)))return objective;
+ if(q.map&&variants.some(other=>other.map!==q.map))return q.map;
+ return 'Archive variant '+q.id.slice(-5);
+}
+
+function flowResultCards(groups){
+ const ids=groups.map(group=>{
+  if(group.tasks.length===1){
+   const id=group.tasks[0].id;
+   flowModel.taskCards.set(id,'root/'+id);
+   return id;
+  }
+  const id='family:'+group.tasks.map(q=>q.id).sort().join('-');
+  flowModel.families.set(id,group);
+  for(const q of group.tasks)flowModel.taskCards.set(q.id,'root/'+id+'/'+q.id);
+  return id;
+ });
+ return ids.map(id=>flowCard(id)).join('');
+}
+
+function populateFlowCard(card){
+ const key=card.dataset.flowKey;
+ flowOpenCards.add(key);
+ const body=card.querySelector(':scope > .flow-content');
+ if(!body.hasChildNodes())body.innerHTML=flowCardBody(card.dataset.flowId,key);
+}
+
+function revealFlowTask(id){
+ const key=flowModel.taskCards.get(id);
+ if(!key)return;
+ const tree=$('flowCanvas'),parts=key.split('/');
+ let target=null;
+ for(let i=2;i<=parts.length;i++){
+  const selector=`[data-flow-key="${CSS.escape(parts.slice(0,i).join('/'))}"]`;
+  const card=tree.querySelector(selector);
+  if(!card)continue;
+  card.open=true;
+  populateFlowCard(card);
+  target=card;
+ }
+ target?.querySelector(':scope > summary')?.focus();
 }
 
 function renderQuestFlow(){
@@ -987,14 +1325,43 @@ function renderQuestFlow(){
  $('flowLevel').value=settings.pmc;
  $('flowCurrent').disabled=!storyActiveTask();
  flowModel=buildQuestFlow();
- const trader=$('flowTrader').value,term=clean($('flowSearch').value),scoped=flowModel.tasks.filter(q=>!trader||q.trader===trader);
- const results=scoped.filter(q=>flowFocus?q.id===flowFocus:!term||clean(q.name).includes(term));
- const search=flowFocus||term;
- const limited=trader||search;
- $('flowCount').textContent=limited?`${results.length} of ${flowModel.tasks.length} tasks`:`${flowModel.tasks.length} tasks`;
- const cards=search?results.sort((a,b)=>a.name.localeCompare(b.name)||a.trader.localeCompare(b.trader)).map(q=>flowCard(q.id)):
-  [...(trader?[]:[flowCard('flow-tour')]),...FLOW_TRADERS.filter(name=>results.some(q=>q.trader===name)).map(name=>flowCard('trader:'+name))];
- $('flowCanvas').innerHTML=cards.join('')||'<p class="flow-empty">No matching tasks.</p>';
+ fillFlowSelect('flowStory',flowModel.storylines.map(g=>[g.id,g.label+(g.kind==='theme'?' (theme)':'')]));
+ fillFlowSelect('flowLoyalty',flowLoyaltyGroups());
+ fillFlowSelect('flowMinLevel',flowLevelGroups());
+ syncFlowCategory();
+ const term=clean($('flowSearch').value);
+ const [trader,story,activity,relation,loyalty,minLevel]=FLOW_FILTER_IDS.map(id=>$(id).value);
+ const facets=[trader,story,activity,relation,loyalty,minLevel].filter(Boolean).length;
+ const results=flowModel.tasks.filter(q=>flowFocus?q.id===flowFocus:
+  (!trader||q.trader===trader)&&
+  (!story||flowModel.stories.get(q.id).has(story))&&
+  (!activity||flowModel.activities.get(q.id).includes(activity))&&
+  (!relation||flowModel.connections.get(q.id).tags.includes(relation))&&
+  (!loyalty||flowLoyaltyKey(q)===loyalty)&&
+  (!minLevel||String(flowMinLevel(q))===minLevel)&&
+  (!term||clean(q.name).includes(term)));
+ sortFlowTasks(results);
+ const entries=groupFlowResults(results),shown=entries.slice(0,flowLimit);
+ const count=facets+Number($('flowAllModes').checked)+Number($('flowHistorical').checked);
+ $('flowFilterCount').textContent=count?`(${count})`:'';
+ $('flowCount').textContent=shown.length===entries.length?flowTaskCount(entries.length):
+  `Showing ${shown.length} of ${flowTaskCount(entries.length)}`;
+ $('flowNote').textContent=FLOW_NOTES[flowBrowse]+(facets?' Expand a task to see linked quests outside your filters.':'');
+ $('flowGateGrouping').classList.toggle('hidden',flowBrowse!=='unlocks');
+ $('flowBrowse').querySelectorAll('[data-flow-browse]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.flowBrowse===flowBrowse)));
+ const cards=flowResultCards(shown);
+ let overview='';
+ if(!flowFocus&&!facets){
+  if(flowBrowse==='storylines'){
+   const story=flowStoryCards(term);
+   overview=story.cards;
+   if(term&&story.total)$('flowCount').textContent+=` · ${story.total} story ${story.total===1?'match':'matches'}`;
+  }else if(flowBrowse==='connections'&&!term)overview=flowCard('flow-tour');
+ }
+ const more=shown.length<entries.length?`<button class="small flow-more" type="button" data-flow-more>Show ${Math.min(FLOW_PAGE_SIZE,entries.length-shown.length)} more</button>`:'';
+ const title=cards?(term?'Matching tasks':'Trader tasks'):'';
+ $('flowCanvas').innerHTML=(overview+(cards?`<h2 class="flow-list-title">${title}</h2><div id="flowTaskResults">${cards}</div>`:'')+more)||
+  '<p class="flow-empty">No matching tasks.</p>';
 }
 
 function focusQuestChain(id){
@@ -1004,8 +1371,7 @@ function focusQuestChain(id){
  flowFocus=id;
  if(!inMode(q))$('flowAllModes').checked=true;
  if(q.removedFromGame)$('flowHistorical').checked=true;
- $('flowTrader').value='';
- $('flowSearch').value='';
+ clearFlowTaskFilters();
  flowOpenCards.add('root/'+id);
  setView('flow');
  $('flowCanvas').querySelector('summary')?.focus();
@@ -1016,31 +1382,62 @@ function bindQuestFlowControls(){
  $('navFlow').onclick=()=>setView('flow');
  $('flowMode').onchange=e=>changeQuestMode(e.target.value);
  $('flowLevel').onchange=e=>setQuestLevel(e.target.value);
- for(const id of ['flowSearch','flowTrader','flowAllModes','flowHistorical']){
+ $('flowBrowse').addEventListener('click',e=>{
+  const button=e.target.closest('[data-flow-browse]');
+  if(!button)return;
+  flowBrowse=button.dataset.flowBrowse;
+  flowFocus='';
+  flowLimit=FLOW_PAGE_SIZE;
+  renderQuestFlow();
+ });
+ $('flowCategory').onchange=e=>{
+  $(flowBrowseField()).value=e.target.value;
+  flowFocus='';
+  flowLimit=FLOW_PAGE_SIZE;
+  renderQuestFlow();
+ };
+ for(const id of ['flowSearch',...FLOW_FILTER_IDS,'flowAllModes','flowHistorical','flowGateBy','flowSort']){
   $(id).addEventListener(id==='flowSearch'?'input':'change',()=>{
    flowFocus='';
-   if(id==='flowTrader'&&$(id).value)flowOpenCards.add('root/trader:'+$(id).value);
+   flowLimit=FLOW_PAGE_SIZE;
    renderQuestFlow();
   });
  }
  for(const trader of FLOW_TRADERS)$('flowTrader').add(new Option(trader,trader));
- $('flowClear').onclick=()=>{flowFocus='';$('flowSearch').value='';$('flowTrader').value='';renderQuestFlow()};
+ for(const [key,label] of FLOW_ACTIVITY)$('flowActivity').add(new Option(label,key));
+ for(const [key,label] of FLOW_CONNECTIONS)$('flowRelation').add(new Option(label,key));
+ $('flowClear').onclick=()=>{
+  flowFocus='';
+  clearFlowTaskFilters();
+  $('flowAllModes').checked=false;
+  $('flowHistorical').checked=false;
+  renderQuestFlow();
+ };
  $('flowCollapse').onclick=()=>{flowOpenCards.clear();renderQuestFlow()};
  $('flowCurrent').onclick=()=>{const task=storyActiveTask();if(task)focusQuestChain(task.id)};
  tree.addEventListener('toggle',e=>{
   const card=e.target,key=card.dataset.flowKey;
   if(!key||!tree.contains(card))return;
   if(!card.open){flowOpenCards.delete(key);return}
-  flowOpenCards.add(key);
-  const body=card.querySelector(':scope > .flow-content');
-  if(!body.hasChildNodes())body.innerHTML=flowCardBody(card.dataset.flowId,key);
+  populateFlowCard(card);
  },true);
  tree.addEventListener('click',e=>{
+  const reveal=e.target.closest('[data-flow-reveal]');
+  if(reveal){revealFlowTask(reveal.dataset.flowReveal);return}
+  if(e.target.closest('[data-flow-more]')){flowLimit+=FLOW_PAGE_SIZE;renderQuestFlow();return}
   const link=e.target.closest('a[data-flow-task-link],a[data-flow-story-link]');
   if(!link)return;
   e.preventDefault();
   if(link.dataset.flowTaskLink)openTask(link.dataset.flowTaskLink);
-  else{setView('campaign');cJumpStage(link.dataset.flowStoryLink)}
+  else{
+   const id=link.dataset.flowStoryLink,{s}=cFindStage(id);
+   if(!cBranchRelevant(s))campaignShowBranches=true;
+   campaignHideFinished=false;
+   campaignSearch='';
+   $('cSearch').value='';
+   setView('campaign');
+   cJumpStage(id);
+  }
  });
 }
 
